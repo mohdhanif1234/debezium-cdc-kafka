@@ -1,0 +1,42 @@
+version: "3.7"
+services:
+  postgres:
+    image: "debezium/postgres:15"
+    environment:
+      - POSTGRES_USER=hanif
+      - POSTGRES_PASSWORD=hanif123
+      - POSTGRES_DB=test-db
+    ports:
+      - 5433:5432
+      
+  zookeeper:
+    image: "confluentinc/cp-zookeeper"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  
+  kafka:
+    image: "confluentinc/cp-kafka"
+    depends_on: ["zookeeper"]
+    ports: 
+      - 9094:9094
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: "OUTSIDE://localhost:9094,PLAINTEXT://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9991
+
+  debezium:
+    image: "debezium/connect:2.4"
+    environment:
+      BOOTSTRAP_SERVERS: "kafka:9092"
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      ENABLE_APICURIO_CONVERTERS: true
+    depends_on: ["kafka"]
+    ports: 
+      - 8083:8083
+    
