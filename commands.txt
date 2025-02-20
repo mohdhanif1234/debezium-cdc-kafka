@@ -6,3 +6,7 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
 to check for any existing connections
 
 curl -H "Accept:application/json" localhost:8083/connectors/             
+
+for health check
+curl -X GET http://localhost:8083/
+curl -X GET http://localhost:8083/connectors
